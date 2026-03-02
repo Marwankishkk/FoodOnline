@@ -4,8 +4,14 @@ from .forms import UserForm
 from .models import User
 from vendor.forms import VendorForm
 from accounts.models import UserProfile
+from django.contrib import auth
+from accounts import utils
+from django.contrib.auth.decorators import login_required , user_passes_test
 # Create your views here.
 def registerUser(request):
+    if request.user.is_authenticated:
+        messages.warning(request, 'You are already logged in!')
+        return redirect('myAccount')
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
@@ -27,6 +33,9 @@ def registerUser(request):
     return render(request, 'accounts/registerUser.html', context)
 
 def registerVendor(request):
+    if request.user.is_authenticated:
+        messages.warning(request, 'You are already logged in!')
+        return redirect('myAccount')
     if request.method == 'POST':
         vendor_form = VendorForm(request.POST, request.FILES)
         user_form = UserForm(request.POST)
@@ -57,3 +66,36 @@ def registerVendor(request):
         'vendor_form': vendor_form,
     }
     return render(request, 'accounts/registerVendor.html', context)
+
+def login(request):
+    if request.user.is_authenticated:
+        messages.warning(request, 'You are already logged in!')
+        return redirect('myAccount')
+    if request.method == 'POST':
+        email = request.POST['email']
+        password = request.POST['password']
+        user = auth.authenticate(request, email=email, password=password)
+        if user is not None:
+            auth.login(request, user)
+            messages.success(request, 'You are now logged in.')
+            return redirect('myAccount')
+        else:
+            messages.error(request, 'Invalid login credentials')
+            return redirect('login')
+    else:
+        return render(request, 'accounts/login.html')
+def logout(request):
+    auth.logout(request)
+    messages.success(request, 'You are now logged out.')
+    return redirect('login')
+@login_required(login_url='login')
+@user_passes_test(utils.check_role_customer)
+def customerDashboard(request):
+    return render(request, 'accounts/customerDashboard.html')
+@login_required(login_url='login')
+@user_passes_test(utils.check_role_vendor)
+def vendorDashboard(request):
+    return render(request, 'accounts/vendorDashboard.html')
+@login_required(login_url='login')
+def myAccount(request):
+    return redirect(utils.detectUser(request.user))
