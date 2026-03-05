@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required , user_passes_test
 from accounts.utils import send_verification_email
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
-
+from vendor.models import Vendor
 # Create your views here.
 def registerUser(request):
     if request.user.is_authenticated:
@@ -113,17 +113,20 @@ def logout(request):
     auth.logout(request)
     messages.success(request, 'You are now logged out.')
     return redirect('login')
+    
 @login_required(login_url='login')
 @user_passes_test(utils.check_role_customer)
 def customerDashboard(request):
     return render(request, 'accounts/customerDashboard.html')
+
 @login_required(login_url='login')
 @user_passes_test(utils.check_role_vendor)
 def vendorDashboard(request):
     return render(request, 'accounts/vendorDashboard.html')
-@login_required(login_url='login')
+
 def myAccount(request):
     return redirect(utils.detectUser(request.user))
+
 def forgot_password(request):
     if request.user.is_authenticated:
         messages.warning(request, 'You are already logged in!')
