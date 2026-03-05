@@ -1,6 +1,6 @@
 from django import forms
 from .models import User, UserManager
-
+from .models import UserProfile
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
     confirm_password = forms.CharField(widget=forms.PasswordInput())
@@ -16,3 +16,10 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError("Passwords do not match")
         return cleaned_data
            
+class UserProfileForm(forms.ModelForm):
+    address = forms.CharField(widget=forms.TextInput())
+    latitude = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}))
+    longitude = forms.CharField(widget=forms.TextInput(attrs={'readonly': 'readonly'}))
+    class Meta:
+        model = UserProfile
+        fields = ['profile_picture', 'cover_photo', 'address', 'country', 'state', 'city', 'pin_code', 'latitude', 'longitude']
