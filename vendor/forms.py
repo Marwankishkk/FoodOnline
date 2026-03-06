@@ -1,5 +1,6 @@
 from django import forms
 from .models import Vendor
+from menu.models import Category
 
 class VendorForm(forms.ModelForm):
     vendor_license = forms.FileField(widget=forms.FileInput(attrs={'class': 'btn btn-info'}))
@@ -7,3 +8,7 @@ class VendorForm(forms.ModelForm):
         model = Vendor
         fields = ['vendor_name', 'vendor_license']
     
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['category_name', 'description']
