@@ -11,6 +11,7 @@ from accounts.utils import send_verification_email
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from vendor.models import Vendor
+from django.utils.text import slugify
 # Create your views here.
 def registerUser(request):
     if request.user.is_authenticated:
@@ -60,6 +61,8 @@ def registerVendor(request):
             user.save()
             vendor = vendor_form.save(commit=False)
             vendor.user = user
+            vendor_name=vendor_form.cleaned_data['vendor_name']
+            vendor.vendor_slug = slugify(vendor_name)+'-'+str(user.id)
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
             vendor.save()
