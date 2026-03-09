@@ -23,7 +23,9 @@
 .main-search.fancy .field-holder input[type="text"]{
     color: #000000 !important;
 }
-
+.main-search{
+    padding-bottom: 20rem !important;
+}
 table > tbody > tr > td{
     border: none !important;
 }
@@ -84,4 +86,117 @@ table > tbody > tr > td{
 
 table td, table th{
     line-height: 1rem !important;
+}
+
+/* Search results (home page) */
+.search-results-container {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    margin-top: 2rem !important;
+}
+.search-results-container h2 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+.search-results-container h2::before {
+    content: "🔍 ";
+    opacity: 0.9;
+}
+.search-results-container > hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, #e8e8e8 0%, transparent 100%);
+    margin: 1rem 0 1.25rem 0;
+}
+.search-results-container .vendors-section h3,
+.search-results-container .food-items-section h3 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #505050;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+.search-results-container .vendor-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    height: 100%;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+.search-results-container .vendor-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border-color: #ddd;
+    transform: translateY(-2px);
+}
+.search-results-container .vendor-card h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 0.55rem;
+}
+.search-results-container .vendor-card p {
+    font-size: 0.9rem;
+    color: #666 !important;
+    margin-bottom: 0.75rem;
+}
+.search-results-container .vendor-card .btn {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    text-transform: none;
+    letter-spacing: 0.02em;
+}
+.search-results-container .vendor-card .btn-outline-primary:hover {
+    background: #505050;
+    border-color: #505050;
+    color: #fff;
+}
+.search-results-container .row > [class*="col-"] {
+    margin-bottom: 1rem;
+}
+.search-results-container .text-muted {
+    color: #888 !important;
+    font-style: italic;
+    padding: 0.5rem 1.75rem;
+}
+
+/* Food cards (same as vendor cards) */
+.search-results-container .food-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    height: 100%;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+.search-results-container .food-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border-color: #ddd;
+    transform: translateY(-2px);
+}
+.search-results-container .food-card h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 0.55rem;
+}
+.search-results-container .food-card p {
+    font-size: 0.9rem;
+    color: #666 !important;
+    margin-bottom: 0.75rem;
+}
+.search-results-container .food-card p:last-child {
+    margin-bottom: 0;
 }

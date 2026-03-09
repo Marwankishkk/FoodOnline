@@ -1,0 +1,75 @@
+{% if vendors or food_items %}
+<div class="search-results-container mt-5 mb-5">
+    {% if query %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Results for "{{ query }}"</h2>
+        <button type="button" 
+                onclick="document.getElementById('search-input').value = ''" 
+                hx-on:click="document.getElementById('search-results').innerHTML = ''"
+                class="btn btn-outline-secondary btn-sm">
+            &times; Close Search
+        </button>
+    </div>
+    <hr>
+    {% endif %}
+
+    <div class="vendors-section">
+        <h3>Restaurants</h3>
+        <div class="row">
+            {% for vendor in vendors %}
+            <div class="col-md-4 mb-4">
+                <div class="vendor-card p-3 border rounded shadow-sm">
+                    <div class="vendor-img mb-2" style="height: 150px; overflow: hidden;">
+                        {% if vendor.user_profile.profile_picture.url %}
+                            <img src="{{ vendor.user_profile.profile_picture.url }}" alt="{{ vendor.vendor_name }}" class="img-fluid rounded w-100" style="object-fit: cover; height: 100%;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/150?text=No+Photo" class="img-fluid rounded w-100">
+                        {% endif %}
+                    </div>
+                    
+                    <h4>{{ vendor.vendor_name }}</h4>
+                    <p class="text-muted small">
+                        {{ vendor.user_profile.city|default:"" }}{% if vendor.user_profile.city and vendor.user_profile.state %}, {% endif %}{{ vendor.user_profile.state|default:"" }}
+                    </p>
+                    <a href="{% url 'vendor_detail' vendor.vendor_slug %}" class="btn btn-sm btn-danger w-100">View Menu</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">No restaurants match your search.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <br>
+
+    <div class="food-items-section">
+        <h3>Dishes</h3>
+        <div class="row">
+            {% for item in food_items %}
+            <div class="col-md-4 mb-4">
+                <div class="food-card p-3 border rounded shadow-sm">
+                    <div class="food-img mb-2" style="height: 120px; overflow: hidden;">
+                        {% if item.image.url %}
+                            <img src="{{ item.image.url }}" alt="{{ item.food_title }}" class="img-fluid rounded w-100" style="object-fit: cover; height: 100%;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/120?text=No+Dish+Photo" class="img-fluid rounded w-100">
+                        {% endif %}
+                    </div>
+
+                    <h4>{{ item.food_title }}</h4>
+                    <p class="mb-1">from <strong>{{ item.vendor.vendor_name }}</strong></p>
+                    <p class="text-success font-weight-bold">{{ item.price }} EGP</p>
+                    <a href="{% url 'vendor_detail' item.vendor.vendor_slug %}" class="btn btn-sm btn-outline-danger btn-block">Order Now</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">No dishes match your search.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center mt-5">
+    <p class="text-muted">No results found for your search.</p>
+</div>
+{% endif %}
