@@ -6,6 +6,12 @@ from menu.models import FoodItem
 from .models import Cart
 from django.http import JsonResponse
 from .context_processors import get_cart_counter, get_cart_amounts
+from vendor.models import OpeningHour
+from datetime import datetime, date
+import pytz
+
+egypt_tz = pytz.timezone('Africa/Cairo')
+
 def marketplace(request):
     vendors = Vendor.objects.filter(is_approved=True,user__is_active=True)[:8]
     context = {
@@ -22,10 +28,18 @@ def vendor_detail(request, vendor_slug):
         cart_items = Cart.objects.filter(user=request.user)
     else:
         cart_items = None
+    today = date.today().isoweekday()
+    custom_day = (today + 1) % 7 + 2
+    current_opening_hours = OpeningHour.objects.filter(vendor=vendor, day=custom_day)
+    opening_hours = OpeningHour.objects.filter(vendor=vendor).order_by('day', 'from_hour')
+
+   
     context = {
         'vendor': vendor,
         'categories': categories,
         'cart_items': cart_items,
+        'opening_hours': opening_hours,
+        'current_opening_hours': current_opening_hours,
     }
     return render(request, 'marketplace/vendor_detail.html', context)
 

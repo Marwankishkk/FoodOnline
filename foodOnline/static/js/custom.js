@@ -281,5 +281,12 @@ $(document).ready(function(){
         })
     })
 
+    // Opening hours / delivery timing dropdown (vendor detail page)
+    $(document).on('click', '.delivery-timing > ul > li > a', function (e) {
+        e.preventDefault();
+        $(this).parent().toggleClass('menu-open');
+        $(this).parent().siblings().removeClass('menu-open');
+    });
+
    // document ready close 
 });

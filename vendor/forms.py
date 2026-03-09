@@ -1,5 +1,5 @@
 from django import forms
-from .models import Vendor
+from .models import Vendor, OpeningHour
 from menu.models import Category, FoodItem
 
 class VendorForm(forms.ModelForm):
@@ -16,3 +16,8 @@ class FoodItemForm(forms.ModelForm):
     class Meta:
         model = FoodItem
         fields = ['category', 'food_title', 'description', 'price', 'image', 'is_available']
+
+class OpeningHourForm(forms.ModelForm):
+    class Meta:
+        model = OpeningHour
+        fields = ['day', 'from_hour', 'to_hour', 'is_closed']
