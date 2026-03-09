@@ -203,12 +203,10 @@
 												</div>
 												{% if vendor.user_profile.city and vendor.user_profile.state and vendor.user_profile.pin_code %}
 												<span>{{ vendor.user_profile.city }}, {{ vendor.user_profile.state }}, {{ vendor.user_profile.pin_code }}</span>
+												{% else %}
 												{% endif %}
 		
-												{% if vendor.kms %}
-													<br>
-													<span><small><b>{{vendor.kms}} km </b>away</small></span>
-												{% endif %}
+												
 											</div>
 											<div class="list-option">
 												<a href="javascript:void(0);" class="shortlist-btn" data-toggle="modal" data-target="#sign-in">
