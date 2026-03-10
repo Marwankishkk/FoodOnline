@@ -2,6 +2,7 @@
     <div class="user-nav-list">
         <ul>
             <li class="{% if '/custDashboard/' == request.path or '/customer/' == request.path %}active{% endif %}"><a href="{% url 'customerDashboard' %}"><i class="icon-dashboard3"></i>Dashboard</a></li>
+            <li class="{% if '/profile/' == request.path %}active{% endif %}"><a href="{% url 'cprofile' %}"><i class="icon-user"></i>Profile</a></li>
             <li><a class="logout-btn" href="{% url 'logout' %}"><i class="icon-log-out"></i>Signout</a></li>
         </ul>
     </div>
