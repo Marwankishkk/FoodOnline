@@ -1,6 +1,9 @@
 from django.urls import path
+
+from accounts.views import vendorDashboard
+
 from . import views
-from accounts.views import vendorDashboard 
+
 urlpatterns = [
     # Vendor Dashboard
     path('',vendorDashboard,name='vendorDashboard'),

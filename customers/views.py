@@ -1,12 +1,12 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from accounts import utils
-from accounts.models import UserProfile
-from django.shortcuts import get_object_or_404
-from accounts.forms import UserInfoForm, UserProfileForm
 from django.contrib import messages
-from django.shortcuts import redirect
-# Create your views here.
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import get_object_or_404, redirect, render
+
+from accounts import utils
+from accounts.forms import UserInfoForm, UserProfileForm
+from accounts.models import UserProfile
+
+
 @login_required(login_url='login')
 @user_passes_test(utils.check_role_customer)
 def customerDashboard(request):

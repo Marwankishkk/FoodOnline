@@ -1,6 +1,9 @@
 from django import forms
-from .models import Vendor, OpeningHour
+
 from menu.models import Category, FoodItem
+
+from .models import OpeningHour, Vendor
+
 
 class VendorForm(forms.ModelForm):
     vendor_license = forms.FileField(widget=forms.FileInput(attrs={'class': 'btn btn-info'}))

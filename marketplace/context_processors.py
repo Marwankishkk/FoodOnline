@@ -1,5 +1,6 @@
-from .models import Cart, Tax
 from menu.models import FoodItem
+
+from .models import Cart, Tax
 
 
 def get_cart_counter(request):
@@ -34,4 +35,4 @@ def get_cart_amounts(request):
             tax_total += tax_amount
             
         grand_total = subtotal + tax_total
-    return dict(subtotal=subtotal, tax_dict=tax_dict, grand_total=grand_total)
+    return dict(subtotal=subtotal, tax_dict=tax_dict, grand_total=grand_total,tax_total=tax_total)

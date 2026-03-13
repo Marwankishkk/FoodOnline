@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
+
+<!-- Main Section Start -->
+<div class="main-section pt-5">
+    <div class="page-section">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                    <div class="tabs-holder horizontal">
+                        <ul class="stickynav-tabs nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#home"><i class="fa fa-shopping-cart text-danger"></i>Review Your Billing Address</a></li>
+                            
+                        </ul>
+                        <div class="tab-content">
+                            <div id="home" class="tab-pane in active">
+                                <div class="menu-itam-holder">
+                                    
+                                    <div id="menu-item-list-6272" class="menu-itam-list">
+                                        
+                                        <div class="billing-address">
+                                            <div><b>{{ order.name }}</b></div>
+                                            <div>{{ order.address }}</div>
+                                            <div>{{ order.city }} - {{ order.pin_code }}</div>
+                                            <div>{{ order.state }}, {{ order.country }}</div>
+                                            <div><b>Phone: </b>{{ order.phone }}</div>
+                                            <div><b>Email: </b>{{ order.email }}</div>
+                                            <div><b>Payment: </b>{{ order.payment_method }}</div>
+                                            <br>
+                                            <div class="d-flex justify-content-between">
+                                            <div><a href="{% url 'checkout' %}" class="btn btn-outline-danger">Edit</a></div>
+                                            <div><a href="{% url 'cancel_order' order.id %}" class="btn btn-outline-danger">Cancel</a></div>
+                                            </div>
+                                            <br>
+ 
+                                        </div>
+                                        
+                                    </div>
+
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Your order section -->
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="tabs-holder horizontal">
+                        <ul class="stickynav-tabs nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#home"><i class="icon- icon-room_service"></i>Your Order</a></li>
+                            
+                        </ul>
+                        <div class="tab-content">
+                            <div id="home" class="tab-pane in active">
+                                <div class="menu-itam-holder">
+                                    
+                                    <div>
+
+                                        <table class="table">
+                                            <tbody>
+                                                {% for item in cart_items %}
+                                                <tr>
+                                                    <td><img src="{{ item.fooditem.image.url }}" width="40" alt="Food Image"></td>
+                                                    <td><b>{{ item.fooditem }}</b></td>
+                                                    <td>{{ item.quantity }}</td>
+                                                    <td>${{ item.fooditem.price }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+
+                                        <ul>
+                                            <li style="list-style-type: none;">
+                                                Subtotal
+                                                <span class="price float-right">
+                                                    <span class="currency">$</span>
+                                                    <span id="subtotal">{{ subtotal }}</span>
+                                                </span>
+                                            </li>
+
+                                            {% for key, value in tax_dict.items %}
+                                                {% for i, j in value.items %}
+                                                    <li style="list-style-type: none;">
+                                                        {{ key }} <small>({{ i }}%)</small>
+                                                        <span class="price float-right">
+                                                            <span class="currency">$</span>
+                                                            <span id="tax-{{ key }}">{{ j }}</span>
+                                                        </span>
+                                                    </li>
+                                                {% endfor %}
+                                            {% endfor %}
+
+
+                                            <li style="list-style-type: none; font-weight: 600;">
+                                                TOTAL
+                                                <span class="price float-right">
+                                                    <span class="currency">$</span>
+                                                    <span id="total">{{ grand_total }}</span>
+                                                </span>
+                                            </li>
+
+                                            {% if order.payment_method == 'Paymob' %}
+                                            <!-- PayPal Checkout Button -->
+                                             
+                                            <button onclick="paymob_payment()" type="submit" class="btn btn-danger w-100 p-2 mt-3">Pay with Paymob</button>
+                                            {% elif order.payment_method == 'Fawaterk' %}
+                                            <button onclick="fawaterk_payment()" type="submit" checked class="btn btn-danger w-100 p-2 mt-3">Pay with Fawaterk</button>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Main Section End -->
+
+
+
+   
+<script>
+    function paymob_payment() {
+        $.ajax({
+            url: "{% url 'paymob_payment' %}",
+            type: "GET",
+            success: function(response) {
+                console.log(response);
+            }
+        });
+    }
+    function fawaterk_payment() {
+        $.ajax({
+            url: "{% url 'fawaterk_payment' %}",
+            type: "GET",
+            success: function(response) {
+                console.log(response);
+                if (response.status === 'success') {
+                    window.location.href = response.redirect_url;
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                alert('Payment failed: ' + error);
+            }
+        });
+    }
+</script>
+
+{% endblock %}

@@ -1,21 +1,19 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from .forms import VendorForm
-from accounts.forms import UserForm
-from accounts.forms import UserProfileForm
-from accounts.models import User, UserProfile
-from vendor.models import Vendor
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from accounts import utils
-from menu.models import Category, FoodItem
-from .forms import CategoryForm,FoodItemForm, OpeningHourForm
-from accounts.utils import check_role_vendor
 from django.db import IntegrityError
-from django.http import HttpResponse
-from django.http import JsonResponse
-from vendor.models import OpeningHour
-# Create your views here.
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
+
+from accounts import utils
+from accounts.forms import UserForm, UserProfileForm
+from accounts.models import User, UserProfile
+from accounts.utils import check_role_vendor
+from menu.models import Category, FoodItem
+from vendor.models import OpeningHour, Vendor
+
+from .forms import CategoryForm, FoodItemForm, OpeningHourForm, VendorForm
+
 
 @login_required(login_url='login')
 @user_passes_test(utils.check_role_vendor)

@@ -1,7 +1,10 @@
-from django.shortcuts import render
-from vendor.models import Vendor
 from django.db.models import Q
+from django.shortcuts import render
+
 from menu.models import FoodItem
+from vendor.models import Vendor
+
+
 def home(request):
     vendors=Vendor.objects.filter(is_approved=True,user__is_active=True)
     context={

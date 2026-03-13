@@ -1,5 +1,7 @@
 from django.urls import path, include
+
 from . import views
+
 urlpatterns = [
     #User Authentication
     path('',views.myAccount,name='myAccount'),

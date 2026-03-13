@@ -1,14 +1,18 @@
-from django.shortcuts import render, redirect
-from vendor.models import Vendor
-from menu.models import Category# Create your views here.
-from django.db.models import Prefetch
-from menu.models import FoodItem
-from .models import Cart
-from django.http import JsonResponse
-from .context_processors import get_cart_counter, get_cart_amounts
-from vendor.models import OpeningHour
-from datetime import datetime, date
+from datetime import date, datetime
 import pytz
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+
+from accounts.models import UserProfile
+from menu.models import Category, FoodItem
+from orders.forms import OrderForm
+from vendor.models import OpeningHour, Vendor
+
+from .context_processors import get_cart_counter, get_cart_amounts
+from .models import Cart
 
 egypt_tz = pytz.timezone('Africa/Cairo')
 
@@ -20,6 +24,7 @@ def marketplace(request):
     return render(request, 'marketplace/listings.html', context)
 
 def vendor_detail(request, vendor_slug):
+    print("vendor_slug", vendor_slug)
     vendor = Vendor.objects.get(vendor_slug=vendor_slug)
     categories = Category.objects.filter(vendor=vendor).prefetch_related(
         Prefetch('fooditems', queryset=FoodItem.objects.filter(is_available=True))
@@ -120,3 +125,29 @@ def delete_cart(request, cart_id):
     else:
         return JsonResponse({'status': 'login_required', 'message': 'Please login to continue'})
     return redirect('cart')
+
+@login_required(login_url='login')
+def checkout(request):
+    cart_items = Cart.objects.filter(user=request.user).order_by('created_at')
+    cart_count = cart_items.count()
+    if cart_count <= 0:
+        print('Cart is empty')
+        return redirect('marketplace')
+    user_profile = UserProfile.objects.get(user=request.user)
+    default_values = {
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+        'phone': request.user.phone_number,
+        'email': request.user.email,
+        'address': user_profile.address,
+        'country': user_profile.country,
+        'state': user_profile.state,
+        'city': user_profile.city,
+        'pin_code': user_profile.pin_code,
+    }
+    form = OrderForm(initial=default_values)
+    context = {
+        'form': form,
+        'cart_items': cart_items,
+    }
+    return render(request, 'marketplace/checkout.html', context)

@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+
 from decouple import config
 from django.contrib import messages
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -26,9 +27,14 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.ngrok-free.dev', '.ngrok-free.app', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [
+    'https://apathetic-disorientedly-shanice.ngrok-free.dev',
+]
 
-
+# Base URL Fawaterk uses for callback/success/fail (must be reachable from the internet).
+# In dev: use your current ngrok URL, e.g. config('FAWATERK_BASE_URL', default='https://your-subdomain.ngrok-free.dev')
+FAWATERK_BASE_URL = config('FAWATERK_BASE_URL', default='https://apathetic-disorientedly-shanice.ngrok-free.dev')
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +49,7 @@ INSTALLED_APPS = [
      'menu',
      'marketplace',
      'customers',
+     'orders',
 ]
 
 MIDDLEWARE = [

@@ -1,11 +1,13 @@
+from datetime import date, datetime, time
+import pytz
+
 from django.db import models
+
 from accounts.models import User, UserProfile
 from accounts.utils import send_notification
-from datetime import time, date, datetime
-import pytz
+
 egypt_tz = pytz.timezone('Africa/Cairo')
 
-# Create your models here.
 
 class Vendor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -27,13 +29,14 @@ class Vendor(models.Model):
         current_time = datetime.now(egypt_tz).time()
         time_fmt = '%I:%M %p'
         for hour in current_opening_hours:
-            from_time = datetime.strptime(hour.from_hour, time_fmt).time()
-            to_time = datetime.strptime(hour.to_hour, time_fmt).time()
-            if from_time <= current_time <= to_time:
-                return True
-                break
-            if hour.is_closed:
-                return False
+            if not hour.is_closed:
+                from_time = datetime.strptime(hour.from_hour, time_fmt).time()
+                to_time = datetime.strptime(hour.to_hour, time_fmt).time()
+                if from_time <= current_time <= to_time:
+                    return True
+                    break
+                if hour.is_closed:
+                    return False
         return False
 
     def save(self, *args, **kwargs):

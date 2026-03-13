@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Main Section Start -->
+<div class="main-section pt-5">
+    <div class="page-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-sm-12">
+                    <div class="tabs-holder horizontal">
+                        <ul class="stickynav-tabs nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#failed"><i class="fa fa-times-circle text-danger"></i> Payment Failed</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="failed" class="tab-pane in active">
+                                <div class="menu-itam-holder">
+                                    <div class="text-center py-4">
+                                        <div class="mb-4">
+                                            <i class="fa fa-times-circle text-danger" style="font-size: 4rem;"></i>
+                                        </div>
+                                        <h4 class="mb-2" style="color: #515151;">Payment could not be completed</h4>
+                                        <p class="mb-4" style="color: #515151;">
+                                            Your payment via Fawaterk was not successful. Your order has not been charged. You can try again or choose a different payment method.
+                                        </p>
+                                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                                            <a href="{% url 'checkout' %}" class="btn btn-danger px-4">Try Again</a>
+                                            <a href="{% url 'marketplace' %}" class="btn btn-outline-danger px-4">Back to Marketplace</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Main Section End -->
+
+{% endblock %}

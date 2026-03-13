@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import Cart, Tax
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-# Register your models here.
+
+from .models import Cart, Tax
+
 
 class AdminCart(admin.ModelAdmin):
     list_display = ('user', 'fooditem', 'quantity', 'created_at', 'updated_at')

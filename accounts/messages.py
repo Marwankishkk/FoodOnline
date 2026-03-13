@@ -1,5 +1,6 @@
 from django.contrib import messages
 
+
 def messages(request):
     messages.success(request, 'Your account has been created successfully')
     messages.error(request, 'Your account has not been created successfully')

@@ -1,18 +1,19 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import UserForm
-from .models import User
-from vendor.forms import VendorForm
-from accounts.models import UserProfile
-from django.contrib import auth
-from accounts import utils
-from django.contrib.auth.decorators import login_required , user_passes_test
-from accounts.utils import send_verification_email
-from django.utils.http import urlsafe_base64_decode
+from django.contrib import auth, messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
-from vendor.models import Vendor
+from django.shortcuts import render, redirect
+from django.utils.http import urlsafe_base64_decode
 from django.utils.text import slugify
-# Create your views here.
+
+from accounts import utils
+from accounts.utils import send_verification_email
+from vendor.forms import VendorForm
+from vendor.models import Vendor
+
+from .forms import UserForm
+from .models import User, UserProfile
+
+
 def registerUser(request):
     if request.user.is_authenticated:
         messages.warning(request, 'You are already logged in!')
