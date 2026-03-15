@@ -16,6 +16,7 @@ from orders.services.paymob import PaymobClient
 from .forms import OrderForm
 from .models import Order, Payment, OrderedFood
 from .utils import generate_order_number
+from accounts.utils import send_notification
 
 
 class DecimalEncoder(json.JSONEncoder):
@@ -247,6 +248,30 @@ def fawaterk_success(request):
         quantity=item.quantity, price=item.fooditem.price, amount=item.fooditem.price * item.quantity, payment=payment)
         ordered_food.save()
         item.delete()                        
+    context = {
+        'user': request.user,
+        'order': order,
+        'cart_items': cart_items,
+    }
+    send_notification(
+        'Order Confirmed',
+        'orders/emails/order_confirmed.html',
+        context)
+        
+    for vendor in order.vendors.all():
+        order_items = OrderedFood.objects.filter(order=order, fooditem__vendor=vendor)
+        vendor_total = sum(item.amount for item in order_items)
+        vendor_context = {
+            'user': vendor.user,
+            'order': order,
+            'order_items': order_items,
+            'vendor_total': vendor_total,
+        }
+        send_notification(
+            'New order received #' + order.order_number,
+            'orders/emails/order_received_vendor.html',
+            vendor_context,
+        )
     return render(request, 'orders/fawaterk_success.html')
 @login_required(login_url='login')
 def fawaterk_failed(request):

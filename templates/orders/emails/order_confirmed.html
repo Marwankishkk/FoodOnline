@@ -1,0 +1,34 @@
+{% autoescape off %}
+
+Hi {{ order.first_name }},
+
+Thank you for your order! Your payment was successful and we've received your order.
+
+Order number: {{ order.order_number }}
+Order date: {{ order.created_at|date:"F d, Y" }}
+
+Delivery address:
+{{ order.first_name }} {{ order.last_name }}
+{{ order.address }}
+{% if order.street %}{{ order.street }}{% endif %}
+{% if order.building %}Building {{ order.building }}{% endif %}{% if order.floor %}, Floor {{ order.floor }}{% endif %}{% if order.apartment %}, Apt {{ order.apartment }}{% endif %}
+{{ order.city }}{% if order.state %}, {{ order.state }}{% endif %} {{ order.pin_code }}
+{% if order.country %}{{ order.country }}{% endif %}
+Phone: {{ order.phone }}
+
+Order summary:
+{% for item in order.orderedfood_set.all %}
+  • {{ item.fooditem.food_title }} x {{ item.quantity }} — {{ item.amount }}
+{% empty %}
+  • (See your order history for details)
+{% endfor %}
+
+Tax: {{ order.total_tax }}
+Total: {{ order.total }}
+Payment method: {{ order.payment_method }}
+
+We'll start preparing your order soon. If you have any questions, please contact us.
+
+— foodOnline
+
+{% endautoescape %}
