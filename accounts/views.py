@@ -10,6 +10,8 @@ from accounts.utils import send_verification_email
 from vendor.forms import VendorForm
 from vendor.models import Vendor
 
+from orders.models import Order
+
 from .forms import UserForm
 from .models import User, UserProfile
 
@@ -121,7 +123,13 @@ def logout(request):
 @login_required(login_url='login')
 @user_passes_test(utils.check_role_customer)
 def customerDashboard(request):
-    return render(request, 'accounts/customerDashboard.html')
+    orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
+    recent_orders = orders[:5]
+    context = {
+        'recent_orders': recent_orders,
+        'orders_count': orders.count(),
+    }
+    return render(request, 'accounts/customerDashboard.html', context)
 
 @login_required(login_url='login')
 @user_passes_test(utils.check_role_vendor)
