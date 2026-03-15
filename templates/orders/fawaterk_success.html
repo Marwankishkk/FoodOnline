@@ -23,6 +23,36 @@
                                         <p class="mb-4" style="color: #515151;">
                                             Your payment via Fawaterk was completed successfully. We've received your order and will start preparing it soon.
                                         </p>
+
+                                        {% if order %}
+                                        <div class="text-left mb-4 p-4 bg-light rounded" style="color: #515151;">
+                                            <h5 class="mb-3 font-weight-bold">Order #{{ order.order_number }}</h5>
+                                            <p class="mb-1 small text-muted">{{ order.created_at|date:"F d, Y" }} at {{ order.created_at|time:"g:i A" }}</p>
+                                            <hr class="my-3">
+                                            <h6 class="font-weight-bold mb-2">Items</h6>
+                                            <ul class="list-unstyled mb-3">
+                                                {% for item in order.orderedfood_set.all %}
+                                                <li class="d-flex justify-content-between py-1">
+                                                    <span>{{ item.fooditem.food_title }} × {{ item.quantity }}</span>
+                                                    <span>{{ item.amount }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            <hr class="my-2">
+                                            <div class="d-flex justify-content-between small mb-1"><span>Tax</span><span>{{ order.total_tax }}</span></div>
+                                            <div class="d-flex justify-content-between font-weight-bold mt-2"><span>Total</span><span>{{ order.total }}</span></div>
+                                            <hr class="my-3">
+                                            <h6 class="font-weight-bold mb-2">Delivery address</h6>
+                                            <p class="mb-0 small">
+                                                {{ order.first_name }} {{ order.last_name }}<br>
+                                                {{ order.address }}{% if order.street %}, {{ order.street }}{% endif %}
+                                                {% if order.building %} — Bldg {{ order.building }}{% endif %}{% if order.floor %}, Floor {{ order.floor }}{% endif %}{% if order.apartment %}, Apt {{ order.apartment }}{% endif %}<br>
+                                                {{ order.city }}{% if order.state %}, {{ order.state }}{% endif %} {{ order.pin_code }}{% if order.country %} {{ order.country }}{% endif %}<br>
+                                                {% if order.phone %}Phone: {{ order.phone }}{% endif %}
+                                            </p>
+                                        </div>
+                                        {% endif %}
+
                                         <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
                                             <a href="{% url 'marketplace' %}" class="btn btn-danger px-4">Continue Shopping</a>
                                             <a href="{% url 'home' %}" class="btn btn-outline-danger px-4">Back to Home</a>

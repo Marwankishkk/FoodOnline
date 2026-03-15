@@ -257,7 +257,7 @@ def fawaterk_success(request):
         'Order Confirmed',
         'orders/emails/order_confirmed.html',
         context)
-        
+
     for vendor in order.vendors.all():
         order_items = OrderedFood.objects.filter(order=order, fooditem__vendor=vendor)
         vendor_total = sum(item.amount for item in order_items)
@@ -272,7 +272,8 @@ def fawaterk_success(request):
             'orders/emails/order_received_vendor.html',
             vendor_context,
         )
-    return render(request, 'orders/fawaterk_success.html')
+    context = {'order': order}
+    return render(request, 'orders/fawaterk_success.html', context)
 @login_required(login_url='login')
 def fawaterk_failed(request):
     return render(request, 'orders/fawaterk_failed.html')
