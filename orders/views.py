@@ -9,9 +9,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 from accounts.models import User
 from marketplace.context_processors import get_cart_amounts
-from marketplace.models import Cart
+from marketplace.models import Cart, Tax
+from menu.models import FoodItem
 from orders.services.fawaterk import FawaterkClient
 from orders.services.paymob import PaymobClient
+
 
 from .forms import OrderForm
 from .models import Order, Payment, OrderedFood
@@ -29,19 +31,43 @@ class DecimalEncoder(json.JSONEncoder):
 @login_required(login_url='login')
 def place_order(request):
     cart_items = Cart.objects.filter(user=request.user).order_by('created_at')
+    get_tax=Tax.objects.filter(is_active=True)
     cart_count = cart_items.count()
     if cart_count <= 0:
         return redirect('marketplace') 
-    vendors_ids = []
-    for i in cart_items:
-        if i.fooditem.vendor.id not in vendors_ids:
-            vendors_ids.append(i.fooditem.vendor.id)  
-
-
     subtotal = get_cart_amounts(request)['subtotal']
     total_tax = get_cart_amounts(request)['tax_total']
     grand_total = get_cart_amounts(request)['grand_total']
-    tax_data = get_cart_amounts(request)['tax_dict']
+    vendors_ids = []
+    for i in cart_items:
+        if i.fooditem.vendor.id not in vendors_ids:
+            vendors_ids.append(i.fooditem.vendor.id)
+    
+    total_data = {}
+    tax_dict = {}
+    k = {}
+    for i in cart_items:
+        fooditem = FoodItem.objects.get(pk=i.fooditem.id, vendor_id__in=vendors_ids)
+        v_id = fooditem.vendor.id
+        if v_id in k:
+            subtotal = k[v_id]
+            subtotal += (fooditem.price * i.quantity)
+            k[v_id] = subtotal
+        else:
+            subtotal = (fooditem.price * i.quantity)
+            k[v_id] = subtotal
+        for tax in get_tax:
+            tax_type = tax.tax_type
+            tax_percentage = tax.tax_percentage
+            tax_amount = round((tax_percentage * subtotal)/100, 2)
+            tax_dict.update({tax_type: {str(tax_percentage) : str(tax_amount)}})
+        if i.fooditem.vendor.id not in vendors_ids:
+            vendors_ids.append(i.fooditem.vendor.id)  
+        fooditem = FoodItem.objects.get(pk=i.fooditem.id, vendor_id__in=vendors_ids)
+        total_data.update({fooditem.vendor.id: {str(subtotal): str(tax_dict)}})
+
+    
+    
     
     if request.method == 'POST':
         form = OrderForm(request.POST)
@@ -73,7 +99,8 @@ def place_order(request):
                 existing_order.city = form.cleaned_data['city']
                 existing_order.user = request.user
                 existing_order.total = grand_total
-                existing_order.tax_data = json.dumps(tax_data, cls=DecimalEncoder)
+                existing_order.total_data = json.dumps(total_data)
+                existing_order.tax_data = json.dumps(tax_dict, cls=DecimalEncoder)
                 existing_order.total_tax = total_tax
                 existing_order.payment_method = request.POST['payment_method']
                 existing_order.save()
@@ -102,7 +129,8 @@ def place_order(request):
                 order.city = form.cleaned_data['city']
                 order.user = request.user
                 order.total = grand_total
-                order.tax_data = json.dumps(tax_data, cls=DecimalEncoder)
+                order.tax_data = json.dumps(tax_dict, cls=DecimalEncoder)
+                order.total_data = json.dumps(total_data)
                 order.total_tax = total_tax
                 order.payment_method = request.POST['payment_method']
                 order.save()

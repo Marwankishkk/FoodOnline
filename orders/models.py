@@ -1,7 +1,8 @@
-import json
-
 from django.db import models
 
+# Create your models here.
+import json
+from django.db import models
 from accounts.models import User
 from menu.models import FoodItem
 from vendor.models import Vendor
@@ -59,7 +60,6 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Concatenate first name and last name
     @property
     def name(self):
         return f'{self.first_name} {self.last_name}'
@@ -74,17 +74,13 @@ class Order(models.Model):
         tax_dict = {}
         if self.total_data:
             total_data = json.loads(self.total_data)
-            data = total_data.get(str(vendor.id))
-            
-            
+            data = total_data.get(str(vendor.id))   
+
             for key, val in data.items():
                 subtotal += float(key)
                 val = val.replace("'", '"')
                 val = json.loads(val)
                 tax_dict.update(val)
-
-                # calculate tax
-                # {'CGST': {'9.00': '6.03'}, 'SGST': {'7.00': '4.69'}}
                 for i in val:
                     for j in val[i]:
                         tax += float(val[i][j])

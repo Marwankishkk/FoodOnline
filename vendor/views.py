@@ -12,6 +12,8 @@ from accounts.utils import check_role_vendor
 from menu.models import Category, FoodItem
 from vendor.models import OpeningHour, Vendor
 
+from orders.models import Order, OrderedFood
+
 from .forms import CategoryForm, FoodItemForm, OpeningHourForm, VendorForm
 
 
@@ -225,3 +227,32 @@ def remove_opening_hours(request, pk=None):
     else:
         HttpResponse('Invalid request')
     return redirect('opening_hours')
+
+
+@login_required(login_url='login')
+@user_passes_test(utils.check_role_vendor)
+def vendor_my_orders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by('created_at')
+    print(orders)
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'vendor/my_orders.html', context)
+
+@login_required(login_url='login')
+@user_passes_test(utils.check_role_vendor)
+def vendor_order_detail(request, order_number):
+    try:
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        ordered_food = OrderedFood.objects.filter(order=order, fooditem__vendor=Vendor.objects.get(user=request.user))
+        context = {
+            'order': order,
+            'ordered_food': ordered_food,
+            'subtotal': order.get_total_by_vendor()['subtotal'],
+            'tax_data': order.get_total_by_vendor()['tax_dict'],
+            'grand_total': order.get_total_by_vendor()['grand_total'],
+        }
+    except:
+        return redirect('vendor_my_orders')
+    return render(request, 'vendor/order_detail.html', context)

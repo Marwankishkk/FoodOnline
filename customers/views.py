@@ -62,5 +62,6 @@ def order_detail(request, order_number):
         'order': order,
         'subtotal': subtotal,
         'tax_data': tax_data,
+        'ordered_food': ordered_food,
     }
     return render(request, 'customers/order_detail.html', context)
