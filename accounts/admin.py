@@ -13,3 +13,10 @@ class CustomUserAdmin(UserAdmin):
     
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(UserProfile)
+# your_app/admin.py
+
+import csv
+from django.contrib import admin
+from django.http import HttpResponse
+
+
