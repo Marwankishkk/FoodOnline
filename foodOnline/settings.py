@@ -50,6 +50,7 @@ INSTALLED_APPS = [
      'marketplace',
      'customers',
      'orders',
+     'django_seed',
 ]
 
 MIDDLEWARE = [

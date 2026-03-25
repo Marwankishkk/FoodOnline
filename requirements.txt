@@ -12,3 +12,4 @@ requests==2.32.5
 simplejson==3.20.2
 sqlparse==0.5.5
 urllib3==2.6.3
+django-seed==0.4.0
