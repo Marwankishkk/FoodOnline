@@ -11,15 +11,16 @@ from accounts.models import User
 
 
 def detectUser(user):
-   
-    if user.role == 1:
-        redirectUrl = 'vendorDashboard'
-    elif user.role == 2:
-        redirectUrl = 'customerDashboard'
-    elif user.role == None and user.is_superadmin:
-        redirectUrl = '/admin'
+    if user.is_authenticated:
+        if user.role == 1:
+            redirectUrl = 'vendorDashboard'
+        elif user.role == 2:
+            redirectUrl = 'customerDashboard'
+        elif user.role == None and user.is_superadmin:
+            redirectUrl = '/admin'
+        
     else:
-        redirectUrl = 'notFound'
+        redirectUrl = '/login'
     return redirectUrl
 
 def check_role_vendor(user):
