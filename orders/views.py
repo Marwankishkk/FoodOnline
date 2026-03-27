@@ -1,5 +1,7 @@
 import json
 from decimal import Decimal
+import hmac
+import hashlib
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -8,6 +10,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
 from accounts.models import User
+from accounts.views import customerDashboard
 from marketplace.context_processors import get_cart_amounts
 from marketplace.models import Cart, Tax
 from menu.models import FoodItem
@@ -260,48 +263,112 @@ def fawaterk_payment(request):
         }, status=400)
 
 
-@login_required(login_url='login')
-def fawaterk_success(request):   
-    order = Order.objects.get(user=request.user, is_ordered=False)
-    order.status = 'Accepted'
-    order.is_ordered = True
-    order.save()
-    payment = Payment.objects.get(order=order)
-    payment.status = 'Completed'
-    payment.save()
-    cart_items = Cart.objects.filter(user=request.user)
-    ordered_food = OrderedFood.objects.filter(user=request.user, order=order)
-    for item in cart_items:
-        ordered_food = OrderedFood.objects.create(user=request.user, order=order, fooditem=item.fooditem,
-        quantity=item.quantity, price=item.fooditem.price, amount=item.fooditem.price * item.quantity, payment=payment)
-        ordered_food.save()
-        item.delete()                        
-    context = {
-        'user': request.user,
-        'order': order,
-        'cart_items': cart_items,
-    }
-    send_notification(
-        'Order Confirmed',
-        'orders/emails/order_confirmed.html',
-        context)
+# @login_required(login_url='login')
+# def fawaterk_success(request):   
+#     order = Order.objects.get(user=request.user, is_ordered=False)
+#     order.status = 'Accepted'
+#     order.is_ordered = True
+#     order.save()
+#     payment = Payment.objects.get(order=order)
+#     payment.status = 'Completed'
+#     payment.save()
+#     cart_items = Cart.objects.filter(user=request.user)
+#     ordered_food = OrderedFood.objects.filter(user=request.user, order=order)
+#     for item in cart_items:
+#         ordered_food = OrderedFood.objects.create(user=request.user, order=order, fooditem=item.fooditem,
+#         quantity=item.quantity, price=item.fooditem.price, amount=item.fooditem.price * item.quantity, payment=payment)
+#         ordered_food.save()
+#         item.delete()                        
+#     context = {
+#         'user': request.user,
+#         'order': order,
+#         'cart_items': cart_items,
+#     }
+#     send_notification(
+#         'Order Confirmed',
+#         'orders/emails/order_confirmed.html',
+#         context)
 
-    for vendor in order.vendors.all():
-        order_items = OrderedFood.objects.filter(order=order, fooditem__vendor=vendor)
-        vendor_total = sum(item.amount for item in order_items)
-        vendor_context = {
-            'user': vendor.user,
-            'order': order,
-            'order_items': order_items,
-            'vendor_total': vendor_total,
-        }
-        send_notification(
-            'New order received #' + order.order_number,
-            'orders/emails/order_received_vendor.html',
-            vendor_context,
-        )
-    context = {'order': order}
-    return render(request, 'orders/fawaterk_success.html', context)
+#     for vendor in order.vendors.all():
+#         order_items = OrderedFood.objects.filter(order=order, fooditem__vendor=vendor)
+#         vendor_total = sum(item.amount for item in order_items)
+#         vendor_context = {
+#             'user': vendor.user,
+#             'order': order,
+#             'order_items': order_items,
+#             'vendor_total': vendor_total,
+#         }
+#         send_notification(
+#             'New order received #' + order.order_number,
+#             'orders/emails/order_received_vendor.html',
+#             vendor_context,
+#         )
+#     context = {'order': order}
+#     return render(request, 'orders/fawaterk_success.html', context)
+
+@csrf_exempt
+def fawaterk_webhook(request):
+    if request.method != 'POST':
+        print("Method not allowed")
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    payload = request.POST.dict()  
+    status = payload.get('invoice_status') or payload.get('payment_status')
+    invoice_id = str(payload.get('id') or payload.get('invoice_id', ''))
+    if status in ('paid', 'success', 'completed'):
+        try:
+            payment = Payment.objects.get(transaction_id=invoice_id)
+            order = Order.objects.get(payment=payment)
+            print(order)
+            if order.is_ordered:
+                return JsonResponse({'status': 'already processed'}, status=200)
+            
+            payment.status = 'Completed'
+            payment.save()
+            order.status = 'Accepted'
+            order.is_ordered = True
+            order.save()
+            cart_items = Cart.objects.filter(user=order.user)
+            for item in cart_items:
+                OrderedFood.objects.create(
+                    user=order.user,
+                    order=order,
+                    fooditem=item.fooditem,
+                    quantity=item.quantity,
+                    price=item.fooditem.price,
+                    amount=item.fooditem.price * item.quantity,
+                    payment=payment
+                )
+                print("ordered food created")
+                item.delete()
+                print("item deleted")
+            context = {'user': order.user, 'order': order}
+            send_notification('Order Confirmed', 'orders/emails/order_confirmed.html', context)
+            
+            for vendor in order.vendors.all():
+                order_items = OrderedFood.objects.filter(order=order, fooditem__vendor=vendor)
+                vendor_total = sum(i.amount for i in order_items)
+                send_notification(
+                    'New order received #' + order.order_number,
+                    'orders/emails/order_received_vendor.html',
+                    {'user': vendor.user, 'order': order, 'order_items': order_items, 'vendor_total': vendor_total},
+                )
+        
+        except (Payment.DoesNotExist, Order.DoesNotExist):
+            return JsonResponse({'error': 'Order not found'}, status=404)
+    
+    return JsonResponse({'status': 'ok'}, status=200)
+
+@login_required(login_url='login')
+def fawaterk_success(request):
+    try:
+        order = Order.objects.get(user=request.user, is_ordered=False)
+    except Order.DoesNotExist:
+        messages.info(request, 'Processing your order, it will appear in seconds.')
+        return redirect('customerDashboard')
+    
+    return render(request, 'orders/fawaterk_success.html', {'order': order})
+
 @login_required(login_url='login')
 def fawaterk_failed(request):
     return render(request, 'orders/fawaterk_failed.html')
