@@ -90,14 +90,26 @@ def activate(request, uidb64, token):
         user = User._default_manager.get(pk=uid)
     except(Exception, ValueError, OverflowError, User.DoesNotExist):
         user = None
-    if user is not None and default_token_generator.check_token(user, token):
+    if user is None:
+        messages.error(request, 'Invalid activation link.')
+        return redirect('login')
+
+    if user.is_active:
+        messages.info(request, 'Your account is already activated. Please login.')
+        return redirect('login')
+
+    if default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
         messages.success(request, 'Your account is activated successfully!')
         return redirect('myAccount')
-    else:
-        messages.error(request, 'Invalid activation link')
-        return redirect('login')
+
+    # Token is invalid/expired for an existing inactive account.
+    mail_subject = 'Activation link expired - new link sent'
+    email_template = 'accounts/emails/account_verification_email.html'
+    send_verification_email(request, user, mail_subject, email_template)
+    messages.warning(request, 'Activation link expired. A new activation email has been sent.')
+    return redirect('login')
 
 def login(request):
     if request.user.is_authenticated:
