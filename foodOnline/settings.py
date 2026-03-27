@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'orders.request_object.RequestObjectMiddleware',
+    'accounts.middleware.AdminLogoutMiddleware',
 ]
 
 ROOT_URLCONF = 'foodOnline.urls'
